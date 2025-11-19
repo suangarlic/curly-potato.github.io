@@ -1,9 +1,427 @@
-<title>学习空间设计</title>
-<body>
-    <div style="text-align: center;">
-        <span style="font-size: 14pt;">宝宝你是我最最最亲爱的宝宝😘</span>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智能插座低碳监测系统</title>
+  <!-- 外部资源 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  
+  <!-- 自定义样式 -->
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- Tailwind配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#00a8ff',
+            secondary: '#00ffaa',
+            accent: '#ff7d00',
+            dark: '#121212',
+            'dark-light': '#1e1e1e',
+            'dark-lighter': '#2d2d2d'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-dark bg-grid bg-tech text-gray-200 min-h-screen overflow-x-hidden">
+  <!-- 顶部标题区域 -->
+  <header class="py-4 px-6 border-b border-primary/30 mb-6">
+    <div class="container mx-auto">
+      <h1 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold text-primary text-glow flex items-center">
+        <i class="fa fa-bolt mr-3 text-secondary"></i>
+        智能插座低碳监测系统
+        <span class="ml-4 text-sm bg-primary/20 px-3 py-1 rounded-full border border-primary/40">实时监控中</span>
+      </h1>
     </div>
-    <div style="text-align: center; margin-top: 20px;">
-        <img src="./qinqin.gif" width="120">
+  </header>
+
+  <!-- 主内容区域 -->
+  <main class="container mx-auto px-6 grid grid-cols-12 gap-6">
+    <!-- 左侧：实时状态概览区 (35%宽度) -->
+    <section class="col-span-4 space-y-6">
+      <!-- 区域标题 -->
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-xl font-semibold text-white flex items-center">
+          <i class="fa fa-tachometer mr-2 text-primary"></i>设备实时状态
+        </h2>
+        <span class="text-xs bg-dark-lighter px-2 py-1 rounded-full">更新于: <span id="update-time">15:30:22</span></span>
+      </div>
+      
+      <!-- 节能效率卡片 -->
+      <div class="bg-dark-light rounded-xl p-5 border border-primary/20 border-glow pulse-slow">
+        <h3 class="text-white text-lg mb-4">节能效率指标</h3>
+        <div class="grid grid-cols-2 gap-4">
+          <!-- 整体节能率 -->
+          <div class="flex flex-col items-center">
+            <div class="relative w-32 h-32 mb-2">
+              <canvas id="energy-saving-chart"></canvas>
+              <div class="absolute inset-0 flex items-center justify-center flex-col">
+                <span class="text-2xl font-bold text-secondary">75%</span>
+                <span class="text-xs text-gray-400">节能率</span>
+              </div>
+            </div>
+            <div class="text-sm text-center">
+              <span class="text-green-400"><i class="fa fa-arrow-up"></i> 12% 较昨日</span>
+            </div>
+          </div>
+          
+          <!-- 设备接入率 -->
+          <div class="flex flex-col items-center">
+            <div class="relative w-32 h-32 mb-2">
+              <canvas id="device-connect-chart"></canvas>
+              <div class="absolute inset-0 flex items-center justify-center flex-col">
+                <span class="text-2xl font-bold text-primary">5/8</span>
+                <span class="text-xs text-gray-400">已接入设备</span>
+              </div>
+            </div>
+            <div class="text-sm text-center">
+              <span class="text-primary">接入率 62.5%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 累计节电量 -->
+      <div class="bg-dark-light rounded-xl p-5 border border-primary/20">
+        <h3 class="text-white text-lg mb-4">累计节能成果</h3>
+        <div class="flex items-end space-x-4">
+          <div class="flex-1">
+            <div class="text-3xl font-bold text-secondary mb-1">12.8<span class="text-lg">度</span></div>
+            <div class="text-sm text-gray-400">本月累计节电</div>
+          </div>
+          <div class="flex-1">
+            <div class="text-3xl font-bold text-primary mb-1">9.6<span class="text-lg">kg</span></div>
+            <div class="text-sm text-gray-400">减少碳排放</div>
+          </div>
+        </div>
+        <div class="mt-4 h-2 bg-dark-lighter rounded-full overflow-hidden">
+          <div class="h-full bg-gradient-to-r from-primary to-secondary" style="width: 68%"></div>
+        </div>
+        <div class="text-xs text-right mt-1 text-gray-500">目标: 20度/月</div>
+      </div>
+      
+      <!-- 设备列表 -->
+      <div class="bg-dark-light rounded-xl p-5 border border-primary/20">
+        <h3 class="text-white text-lg mb-4 flex items-center justify-between">
+          <span><i class="fa fa-plug mr-2 text-primary"></i>已接入设备</span>
+          <span class="text-xs bg-primary/20 px-2 py-1 rounded-full" id="device-count">5台设备</span>
+        </h3>
+        
+        <div class="space-y-3 max-h-64 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-primary/30">
+          <!-- 设备项1 -->
+          <div class="bg-dark-lighter rounded-lg p-3 flex items-center justify-between slide-in" style="animation-delay: 0.1s">
+            <div class="flex items-center">
+              <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mr-3">
+                <i class="fa fa-lightbulb-o text-primary"></i>
+              </div>
+              <div>
+                <div class="font-medium">客厅LED灯</div>
+                <div class="text-xs text-gray-400">已开启 2小时15分</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-secondary font-bold">1.2W</div>
+              <div class="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">正常</div>
+            </div>
+          </div>
+          
+          <!-- 设备项2 -->
+          <div class="bg-dark-lighter rounded-lg p-3 flex items-center justify-between slide-in" style="animation-delay: 0.2s">
+            <div class="flex items-center">
+              <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mr-3">
+                <i class="fa fa-fan text-primary"></i>
+              </div>
+              <div>
+                <div class="font-medium">卧室风扇</div>
+                <div class="text-xs text-gray-400">已开启 45分钟</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-secondary font-bold">3.5W</div>
+              <div class="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">正常</div>
+            </div>
+          </div>
+          
+          <!-- 设备项3 -->
+          <div class="bg-dark-lighter rounded-lg p-3 flex items-center justify-between slide-in warning" style="animation-delay: 0.3s">
+            <div class="flex items-center">
+              <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mr-3">
+                <i class="fa fa-television text-primary"></i>
+              </div>
+              <div>
+                <div class="font-medium">客厅电视</div>
+                <div class="text-xs text-gray-400">待机中 1小时30分</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-accent font-bold">2.8W</div>
+              <div class="text-xs bg-accent/20 text-accent px-2 py-0.5 rounded-full">待机关闭建议</div>
+            </div>
+          </div>
+          
+          <!-- 设备项4 -->
+          <div class="bg-dark-lighter rounded-lg p-3 flex items-center justify-between slide-in" style="animation-delay: 0.4s">
+            <div class="flex items-center">
+              <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mr-3">
+                <i class="fa fa-laptop text-primary"></i>
+              </div>
+              <div>
+                <div class="font-medium">书房电脑</div>
+                <div class="text-xs text-gray-400">已开启 1小时</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-secondary font-bold">25.6W</div>
+              <div class="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">正常</div>
+            </div>
+          </div>
+          
+          <!-- 设备项5 -->
+          <div class="bg-dark-lighter rounded-lg p-3 flex items-center justify-between slide-in" style="animation-delay: 0.5s">
+            <div class="flex items-center">
+              <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mr-3">
+                <i class="fa fa-coffee text-primary"></i>
+              </div>
+              <div>
+                <div class="font-medium">厨房咖啡机</div>
+                <div class="text-xs text-gray-400">已关闭</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-gray-500 font-bold">0W</div>
+              <div class="text-xs bg-gray-500/20 text-gray-400 px-2 py-0.5 rounded-full">离线</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 左侧：AI节能建议（嵌入已接入设备下方，垂直显示，滚轮查看更多，默认显示2项） -->
+      <div class="bg-dark-light rounded-xl p-5 border border-primary/20">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-white flex items-center">
+            <i class="fa fa-lightbulb-o mr-2 text-primary"></i>AI节能建议
+          </h3>
+          <div class="flex items-center">
+            <div class="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center mr-2">
+              <i class="fa fa-robot text-primary text-xs"></i>
+            </div>
+            <span class="text-xs text-gray-400">最后更新: 5分钟前</span>
+          </div>
+        </div>
+
+        <div class="space-y-3 max-h-52 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-primary/30">
+          <!-- 节能方案1 -->
+          <div class="bg-dark-lighter rounded-lg p-4 border border-green-500/30 highlight">
+            <div class="flex justify-between items-start mb-2">
+              <div class="text-sm font-medium">客厅电视待机优化</div>
+              <span class="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">已生效</span>
+            </div>
+            <p class="text-xs text-gray-400 mb-3">检测到电视已待机1小时30分钟，建议10分钟后自动关闭电源。</p>
+            <div class="flex justify-between items-center">
+              <div class="text-xs text-green-400"><i class="fa fa-bolt mr-1"></i> 预计节电: 0.05度/天</div>
+              <button class="text-xs text-primary hover:underline">查看详情</button>
+            </div>
+          </div>
+
+          <!-- 节能方案2 -->
+          <div class="bg-dark-lighter rounded-lg p-4 border border-primary/20">
+            <div class="flex justify-between items-start mb-2">
+              <div class="text-sm font-medium">光线自适应调节</div>
+              <span class="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">已生效</span>
+            </div>
+            <p class="text-xs text-gray-400 mb-3">当前光线较强(680lux)，建议将客厅LED灯亮度调低至30%。</p>
+            <div class="flex justify-between items-center">
+              <div class="text-xs text-green-400"><i class="fa fa-bolt mr-1"></i> 预计节电: 0.08度/天</div>
+              <button class="text-xs text-primary hover:underline">查看详情</button>
+            </div>
+          </div>
+
+          <!-- 节能方案3 -->
+          <div class="bg-dark-lighter rounded-lg p-4 border border-primary/20">
+            <div class="flex justify-between items-start mb-2">
+              <div class="text-sm font-medium">风扇智能启停</div>
+              <span class="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">待确认</span>
+            </div>
+            <p class="text-xs text-gray-400 mb-3">分析显示用户习惯在18:00后使用风扇，建议设置定时开启。</p>
+            <div class="flex justify-between items-center">
+              <div class="text-xs text-green-400"><i class="fa fa-bolt mr-1"></i> 预计节电: 0.12度/天</div>
+              <button class="text-xs text-primary hover:underline">立即执行</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 右侧：传感器数据可视化区 (65%宽度) -->
+    <section class="col-span-8 space-y-6">
+      <!-- 区域标题 -->
+      <div class="flex items-center">
+        <h2 class="text-xl font-semibold text-white flex items-center">
+          <i class="fa fa-area-chart mr-2 text-primary"></i>环境与能耗监测
+        </h2>
+        <div class="ml-3 w-6 h-6 rounded-full bg-dark-light flex items-center justify-center rotate-slow">
+          <i class="fa fa-refresh text-primary text-xs"></i>
+        </div>
+      </div>
+      
+      <!-- 传感器数据卡片 -->
+      <div class="grid grid-cols-3 gap-6">
+        <!-- 温湿度传感器 -->
+        <div class="bg-dark-light rounded-xl p-5 border border-primary/20 hover:border-glow transition-all cursor-pointer">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-medium text-white flex items-center">
+              <i class="fa fa-thermometer-half mr-2 text-primary"></i>温湿度
+            </h3>
+            <span class="text-xs bg-primary/20 px-2 py-0.5 rounded-full">DHT11</span>
+          </div>
+          <div class="flex items-end space-x-2">
+            <div class="text-3xl font-bold text-white">26.5<span class="text-lg">℃</span></div>
+            <div class="text-xl text-gray-400 mb-1">45%</div>
+          </div>
+          <div class="mt-3 text-sm text-green-400"><i class="fa fa-check-circle"></i> 温度适宜</div>
+        </div>
+        
+        <!-- 光线传感器 -->
+        <div class="bg-dark-light rounded-xl p-5 border border-primary/20 hover:border-glow transition-all cursor-pointer">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-medium text-white flex items-center">
+              <i class="fa fa-sun-o mr-2 text-primary"></i>光线强度
+            </h3>
+            <span class="text-xs bg-primary/20 px-2 py-0.5 rounded-full">BH1750</span>
+          </div>
+          <div class="text-3xl font-bold text-white">680<span class="text-lg">lux</span></div>
+          <div class="mt-3 text-sm text-yellow-400"><i class="fa fa-exclamation-circle"></i> 光线较强</div>
+        </div>
+        
+        <!-- 人体红外传感器 -->
+        <div class="bg-dark-light rounded-xl p-5 border border-primary/20 hover:border-glow transition-all cursor-pointer">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-medium text-white flex items-center">
+              <i class="fa fa-user-o mr-2 text-primary"></i>人体检测
+            </h3>
+            <span class="text-xs bg-primary/20 px-2 py-0.5 rounded-full">HC-SR501</span>
+          </div>
+          <div class="text-3xl font-bold text-green-400">
+            <i class="fa fa-check-circle"></i> 检测到人体
+          </div>
+          <div class="mt-3 text-sm text-gray-400">最后活动: 2分钟前</div>
+        </div>
+      </div>
+      
+      <!-- 功率趋势图表 -->
+      <div class="bg-dark-light rounded-xl p-5 border border-primary/20">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-medium text-white flex items-center">
+            <i class="fa fa-line-chart mr-2 text-primary"></i>功率趋势分析
+          </h3>
+          <div class="flex space-x-2">
+            <button class="text-xs bg-primary/30 text-white px-3 py-1 rounded-full border border-primary/50">今日</button>
+            <button class="text-xs bg-dark-lighter text-gray-400 px-3 py-1 rounded-full">本周</button>
+            <button class="text-xs bg-dark-lighter text-gray-400 px-3 py-1 rounded-full">本月</button>
+          </div>
+        </div>
+        <div class="h-64">
+          <canvas id="power-trend-chart"></canvas>
+        </div>
+        <div class="flex justify-between mt-3 text-xs text-gray-400">
+          <div><i class="fa fa-arrow-up text-accent mr-1"></i> 用电高峰: 18:30 (42.5W)</div>
+          <div><i class="fa fa-arrow-down text-green-400 mr-1"></i> 用电低谷: 03:15 (1.2W)</div>
+        </div>
+      </div>
+      
+      <!-- 低碳监测中枢 -->
+      <div class="bg-dark-light rounded-xl p-5 border border-primary/20">
+        <h3 class="font-medium text-white flex items-center mb-6">
+          <i class="fa fa-cogs mr-2 text-primary"></i>低碳监测中枢
+        </h3>
+        
+        <div class="relative w-full h-64 flex items-center justify-center">
+          <!-- 中心圆 -->
+          <div class="absolute w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center border border-primary/40 z-10">
+            <span class="text-primary font-bold text-center">AI<br>核心</span>
+          </div>
+          
+          <!-- 旋转圆环 -->
+          <div class="absolute w-64 h-64 rounded-full border-2 border-primary/30 rotate-slow"></div>
+          <div class="absolute w-56 h-56 rounded-full border-2 border-secondary/30 rotate-slow" style="animation-direction: reverse;"></div>
+          
+          <!-- 功能节点 -->
+          <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-dark-lighter px-3 py-1 rounded-full border border-primary/40 slide-in">
+            <div class="flex items-center">
+              <i class="fa fa-microchip text-primary mr-1"></i>
+              <span class="text-sm">传感器采集</span>
+            </div>
+          </div>
+          
+          <div class="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-1/2 bg-dark-lighter px-3 py-1 rounded-full border border-primary/40 slide-in" style="animation-delay: 0.2s">
+            <div class="flex items-center">
+              <i class="fa fa-cloud-upload text-primary mr-1"></i>
+              <span class="text-sm">数据上云</span>
+            </div>
+          </div>
+          
+          <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 bg-dark-lighter px-3 py-1 rounded-full border border-primary/40 slide-in" style="animation-delay: 0.4s">
+            <div class="flex items-center">
+              <i class="fa fa-brain text-primary mr-1"></i>
+              <span class="text-sm">AI分析</span>
+            </div>
+          </div>
+          
+          <div class="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1/2 bg-dark-lighter px-3 py-1 rounded-full border border-primary/40 slide-in" style="animation-delay: 0.6s">
+            <div class="flex items-center">
+              <i class="fa fa-power-off text-primary mr-1"></i>
+              <span class="text-sm">设备控制</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 设备功耗占比和节能排行 -->
+      <div class="grid grid-cols-2 gap-6">
+        <!-- 设备功耗占比 -->
+        <div class="bg-dark-light rounded-xl p-5 border border-primary/20">
+          <h3 class="font-medium text-white flex items-center mb-4">
+            <i class="fa fa-pie-chart mr-2 text-primary"></i>设备功耗占比
+          </h3>
+          <div class="h-56 flex items-center justify-center">
+            <canvas id="power-distribution-chart"></canvas>
+          </div>
+        </div>
+        
+        <!-- 设备节能排行 -->
+        <div class="bg-dark-light rounded-xl p-5 border border-primary/20">
+          <h3 class="font-medium text-white flex items-center mb-4">
+            <i class="fa fa-trophy mr-2 text-primary"></i>设备节能排行
+          </h3>
+          <div class="h-56">
+            <canvas id="energy-ranking-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 底部的全宽 AI 建议区已移至左侧设备下方 -->
+  </main>
+  
+  <!-- 页脚 -->
+  <footer class="mt-8 py-4 px-6 border-t border-primary/30 text-center text-sm text-gray-500">
+    <div class="container mx-auto">
+      <p>智能插座低碳监测系统 &copy; 2025 | 开源硬件比赛项目</p>
     </div>
+  </footer>
+
+  <!-- 自定义脚本 -->
+  <script src="script.js"></script>
 </body>
+</html>
